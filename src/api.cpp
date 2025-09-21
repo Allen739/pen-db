@@ -6,6 +6,19 @@ int main() {
     MiniDB db("data.txt"); // persistent backend
     httplib::Server svr;
 
+    // CORS middleware for all responses
+    svr.set_default_headers({
+        {"Access-Control-Allow-Origin", "*"},
+        {"Access-Control-Allow-Methods", "GET, POST, OPTIONS"},
+        {"Access-Control-Allow-Headers", "Content-Type"}
+    });
+
+    // Handle preflight OPTIONS for any path
+    svr.Options(".*", [](const httplib::Request&, httplib::Response& res) {
+        res.status = 200;
+        res.set_content("", "text/plain"); // empty body
+    });
+
     // SET key=value
     svr.Post("/set", [&](const httplib::Request& req, httplib::Response& res){
         auto key = req.get_param_value("key");
@@ -40,6 +53,6 @@ int main() {
         res.set_content(result.empty() ? "No data" : result, "text/plain");
     });
 
-    std::cout << "MiniAI-DB API running on http://localhost:8080\n";
+    std::cout << "Pen-DB API running on http://localhost:8080\n";
     svr.listen("0.0.0.0", 8080);
 }

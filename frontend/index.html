@@ -1,78 +1,855 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Mini-DB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pen-Db | Database Management Console</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-blue-hover: #1557b0;
+            --secondary-blue: #e8f0fe;
+            --dark-gray: #202124;
+            --medium-gray: #5f6368;
+            --light-gray: #f8f9fa;
+            --border-color: #dadce0;
+            --success-green: #137333;
+            --error-red: #d93025;
+            --warning-orange: #f9ab00;
+            --shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3);
+            --shadow-hover: 0 4px 8px 0 rgba(60, 64, 67, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 2em;
+            font-family: 'Google Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            min-height: 100vh;
         }
-        input {
-            margin: 0.5em;
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        button {
-            margin: 0.5em;
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        #result {
-            margin-top: 1em;
-            font-weight: bold;
-            white-space: pre-wrap; /* preserve line breaks */
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .logo i {
+            font-size: 28px;
+            margin-right: 12px;
+            color: var(--primary-blue);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            background: var(--success-green);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        /* Command Panel */
+        .command-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--primary-blue), #4285f4);
+            color: white;
+            padding: 20px 24px;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .panel-header i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .panel-content {
+            padding: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--medium-gray);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-hover);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-blue);
+            color: var(--primary-blue);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #d2e3fc;
+        }
+
+        .btn-danger {
+            background: var(--error-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b52d20;
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0f5132;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            max-height: 600px;
+        }
+
+        .results-header {
+            background: var(--dark-gray);
+            color: white;
+            padding: 20px 24px;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .results-header i {
+            margin-right: 12px;
+        }
+
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .results-content {
+            flex: 1;
+            padding: 0;
+            overflow: auto;
+            min-height: 300px;
+        }
+
+        .result-item {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-timestamp {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-bottom: 4px;
+        }
+
+        .result-content {
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .result-success {
+            border-left: 4px solid var(--success-green);
+            background: #f0f9f0;
+        }
+
+        .result-error {
+            border-left: 4px solid var(--error-red);
+            background: #fdf2f2;
+        }
+
+        .result-info {
+            border-left: 4px solid var(--primary-blue);
+            background: #f8f9ff;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            color: var(--medium-gray);
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                padding: 24px 16px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                padding: 0 16px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .results-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-content::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+
+        .results-content::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .results-content::-webkit-scrollbar-thumb:hover {
+            background: var(--medium-gray);
+        }
+
+        /* Table Styles for VIEW ALL */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            margin-top: 8px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .data-table td {
+            font-size: 13px;
+            word-break: break-word;
+            max-width: 300px;
+        }
+
+        .data-table tr:hover {
+            background: rgba(26, 115, 232, 0.05);
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .table-stats {
+            font-size: 12px;
+            color: var(--medium-gray);
+            margin-top: 8px;
+            text-align: center;
+            padding: 8px;
+            background: var(--light-gray);
+            border-radius: 4px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--medium-gray);
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <h1>Mini-DB Web Frontend</h1>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                Pen-Db
+            </div>
+            <div class="status-indicator">
+                <span>Connected</span>
+            </div>
+        </div>
+    </header>
 
-    <div>
-        <input type="text" id="key" placeholder="Key">
-        <input type="text" id="value" placeholder="Value">
-        <button onclick="setValue()">SET</button>
-        <button onclick="getValue()">GET</button>
-        <button onclick="deleteValue()">DELETE</button>
-        <button onclick="viewAll()">VIEW ALL</button>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Command Panel -->
+        <div class="command-panel">
+            <div class="panel-header">
+                <i class="fas fa-terminal"></i>
+                Database Operations
+            </div>
+            <div class="panel-content">
+                <div class="input-group">
+                    <label for="key">Key</label>
+                    <input type="text" id="key" class="input-field" placeholder="Enter key name..." autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <label for="value">Value</label>
+                    <input type="text" id="value" class="input-field" placeholder="Enter value..." autocomplete="off">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="setValue()">
+                        <i class="fas fa-plus"></i>
+                        SET
+                    </button>
+                    <button class="btn btn-secondary" onclick="getValue()">
+                        <i class="fas fa-search"></i>
+                        GET
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteValue()">
+                        <i class="fas fa-trash"></i>
+                        DELETE
+                    </button>
+                    <button class="btn btn-success" onclick="viewAll()">
+                        <i class="fas fa-list"></i>
+                        VIEW ALL
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-panel">
+            <div class="results-header">
+                <span><i class="fas fa-chart-line"></i>Query Results</span>
+                <button class="clear-btn" onclick="clearResults()">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+            </div>
+            <div class="results-content" id="results-container">
+                <div class="empty-state">
+                    <i class="fas fa-database"></i>
+                    <p>Execute a command to see results</p>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <p id="result"></p>
 
     <script>
         const apiUrl = "http://localhost:8080";
+        const resultsContainer = document.getElementById('results-container');
+
+        function addResult(content, type = 'info', operation = '') {
+            const timestamp = new Date().toLocaleString();
+            const resultItem = document.createElement('div');
+            resultItem.className = `result-item result-${type}`;
+            
+            resultItem.innerHTML = `
+                <div class="result-timestamp">${timestamp} ${operation ? `- ${operation}` : ''}</div>
+                <div class="result-content">${content}</div>
+            `;
+
+            // Remove empty state if it exists
+            const emptyState = resultsContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            resultsContainer.insertBefore(resultItem, resultsContainer.firstChild);
+            
+            // Scroll to top to show latest result
+            resultsContainer.scrollTop = 0;
+        }
+
+        function addTableResult(rawText, operation = '') {
+            const timestamp = new Date().toLocaleString();
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item result-info';
+
+            // Parse the raw text into key-value pairs
+            const lines = rawText.trim().split('\n');
+            const keyValuePairs = [];
+            
+            for (const line of lines) {
+                if (line.trim()) {
+                    // Look for key-value patterns like "key: value" or "key = value"
+                    const colonMatch = line.match(/^(.+?):\s*(.*)$/);
+                    const equalsMatch = line.match(/^(.+?)\s*=\s*(.*)$/);
+                    const spaceMatch = line.match(/^(\S+)\s+(.+)$/);
+                    
+                    if (colonMatch) {
+                        keyValuePairs.push({ key: colonMatch[1].trim(), value: colonMatch[2].trim() });
+                    } else if (equalsMatch) {
+                        keyValuePairs.push({ key: equalsMatch[1].trim(), value: equalsMatch[2].trim() });
+                    } else if (spaceMatch) {
+                        keyValuePairs.push({ key: spaceMatch[1].trim(), value: spaceMatch[2].trim() });
+                    } else {
+                        // If no clear pattern, treat the whole line as a key with empty value
+                        keyValuePairs.push({ key: line.trim(), value: '' });
+                    }
+                }
+            }
+
+            let tableHTML = '';
+            if (keyValuePairs.length === 0) {
+                tableHTML = '<div class="no-data">No data found in database</div>';
+            } else {
+                tableHTML = `
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${keyValuePairs.map(pair => `
+                                    <tr>
+                                        <td>${escapeHtml(pair.key)}</td>
+                                        <td>${escapeHtml(pair.value)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-stats">
+                        ${keyValuePairs.length} record${keyValuePairs.length !== 1 ? 's' : ''} found
+                    </div>
+                `;
+            }
+
+            resultItem.innerHTML = `
+                <div class="result-timestamp">${timestamp} - ${operation}</div>
+                <div class="result-content">
+                    Database Contents:
+                    ${tableHTML}
+                </div>
+            `;
+
+            // Remove empty state if it exists
+            const emptyState = resultsContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            resultsContainer.insertBefore(resultItem, resultsContainer.firstChild);
+            
+            // Scroll to top to show latest result
+            resultsContainer.scrollTop = 0;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function setButtonLoading(button, isLoading) {
+            if (isLoading) {
+                button.classList.add('loading');
+                button.disabled = true;
+            } else {
+                button.classList.remove('loading');
+                button.disabled = false;
+            }
+        }
 
         function setValue() {
-            const key = document.getElementById("key").value;
-            const value = document.getElementById("value").value;
+            const key = document.getElementById("key").value.trim();
+            const value = document.getElementById("value").value.trim();
+            const button = event.target;
+
+            if (!key || !value) {
+                addResult('Error: Both key and value are required', 'error', 'SET');
+                return;
+            }
+
+            setButtonLoading(button, true);
 
             fetch(`${apiUrl}/set`, {
                 method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
                 body: new URLSearchParams({key, value})
             })
-            .then(res => res.text())
-            .then(text => document.getElementById("result").innerText = text);
+            .then(async res => {
+                const text = await res.text();
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${text}`);
+                }
+                return text;
+            })
+            .then(text => {
+                addResult(text, 'success', `SET ${key}`);
+                // Clear inputs after successful SET
+                document.getElementById("key").value = '';
+                document.getElementById("value").value = '';
+            })
+            .catch(err => {
+                console.error('SET Error:', err);
+                if (err.message.includes('fetch')) {
+                    addResult(`Connection Error: Unable to reach database server at ${apiUrl}. Please check if the server is running and CORS is enabled.`, 'error', 'SET');
+                } else {
+                    addResult(`Error: ${err.message}`, 'error', 'SET');
+                }
+            })
+            .finally(() => {
+                setButtonLoading(button, false);
+            });
         }
 
         function getValue() {
-            const key = document.getElementById("key").value;
+            const key = document.getElementById("key").value.trim();
+            const button = event.target;
 
-            fetch(`${apiUrl}/get?key=${key}`)
-            .then(res => res.text())
-            .then(text => document.getElementById("result").innerText = text);
+            if (!key) {
+                addResult('Error: Key is required for GET operation', 'error', 'GET');
+                return;
+            }
+
+            setButtonLoading(button, true);
+
+            fetch(`${apiUrl}/get?key=${encodeURIComponent(key)}`, {
+                method: "GET",
+                headers: {
+                    'Accept': 'text/plain',
+                }
+            })
+            .then(async res => {
+                const text = await res.text();
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${text}`);
+                }
+                return text;
+            })
+            .then(text => {
+                const isNotFound = text.toLowerCase().includes('not found') || text.toLowerCase().includes('key not found');
+                addResult(text, isNotFound ? 'error' : 'success', `GET ${key}`);
+            })
+            .catch(err => {
+                console.error('GET Error:', err);
+                if (err.message.includes('fetch')) {
+                    addResult(`Connection Error: Unable to reach database server at ${apiUrl}. Please check if the server is running and CORS is enabled.`, 'error', 'GET');
+                } else {
+                    addResult(`Error: ${err.message}`, 'error', 'GET');
+                }
+            })
+            .finally(() => {
+                setButtonLoading(button, false);
+            });
         }
 
         function deleteValue() {
-            const key = document.getElementById("key").value;
+            const key = document.getElementById("key").value.trim();
+            const button = event.target;
+
+            if (!key) {
+                addResult('Error: Key is required for DELETE operation', 'error', 'DELETE');
+                return;
+            }
+
+            setButtonLoading(button, true);
 
             fetch(`${apiUrl}/delete`, {
                 method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
                 body: new URLSearchParams({key})
             })
-            .then(res => res.text())
-            .then(text => document.getElementById("result").innerText = text);
+            .then(async res => {
+                const text = await res.text();
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${text}`);
+                }
+                return text;
+            })
+            .then(text => {
+                addResult(text, 'success', `DELETE ${key}`);
+                // Clear key input after successful DELETE
+                document.getElementById("key").value = '';
+            })
+            .catch(err => {
+                console.error('DELETE Error:', err);
+                if (err.message.includes('fetch')) {
+                    addResult(`Connection Error: Unable to reach database server at ${apiUrl}. Please check if the server is running and CORS is enabled.`, 'error', 'DELETE');
+                } else {
+                    addResult(`Error: ${err.message}`, 'error', 'DELETE');
+                }
+            })
+            .finally(() => {
+                setButtonLoading(button, false);
+            });
         }
 
         function viewAll() {
-            fetch(`${apiUrl}/all`)
-            .then(res => res.text())
-            .then(text => document.getElementById("result").innerText = text);
+            const button = event.target;
+            setButtonLoading(button, true);
+
+            fetch(`${apiUrl}/all`, {
+                method: "GET",
+                headers: {
+                    'Accept': 'text/plain',
+                }
+            })
+            .then(async res => {
+                const text = await res.text();
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${text}`);
+                }
+                return text;
+            })
+            .then(text => {
+                addTableResult(text, 'VIEW ALL');
+            })
+            .catch(err => {
+                console.error('VIEW ALL Error:', err);
+                if (err.message.includes('fetch')) {
+                    addResult(`Connection Error: Unable to reach database server at ${apiUrl}. Please check if the server is running and CORS is enabled.`, 'error', 'VIEW ALL');
+                } else {
+                    addResult(`Error: ${err.message}`, 'error', 'VIEW ALL');
+                }
+            })
+            .finally(() => {
+                setButtonLoading(button, false);
+            });
         }
+
+        function clearResults() {
+            resultsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-database"></i>
+                    <p>Execute a command to see results</p>
+                </div>
+            `;
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        if (document.getElementById('value').value) {
+                            setValue();
+                        } else if (document.getElementById('key').value) {
+                            getValue();
+                        }
+                        e.preventDefault();
+                        break;
+                    case 'k':
+                        document.getElementById('key').focus();
+                        e.preventDefault();
+                        break;
+                    case 'l':
+                        clearResults();
+                        e.preventDefault();
+                        break;
+                }
+            }
+        });
+
+        // Auto-focus on key input when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('key').focus();
+        });
     </script>
 </body>
 </html>

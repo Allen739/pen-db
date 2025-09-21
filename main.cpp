@@ -6,7 +6,7 @@ int main() {
     MiniDB db("data.txt"); // persistence file
     std::string line;
 
-    std::cout << "Welcome to Mini-DB! Type 'EXIT' to quit.\n";
+    std::cout << "Welcome to Pen-DB! Type 'EXIT' to quit.\n";
 
     while (true) {
         std::cout << "db> ";
