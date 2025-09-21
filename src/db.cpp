@@ -8,7 +8,7 @@ MiniDB::MiniDB(const std::string& file) : filename(file) {
     loadFromFile();
 }
 
-// Load existing data
+// Load existing data from file
 void MiniDB::loadFromFile() {
     std::ifstream infile(filename);
     if (!infile.is_open()) return;
@@ -33,11 +33,13 @@ void MiniDB::saveToFile() {
     outfile.close();
 }
 
+// Set a key-value pair
 void MiniDB::set(const std::string& key, const std::string& value) {
     store[key] = value;
     saveToFile();
 }
 
+// Get value by key
 std::optional<std::string> MiniDB::get(const std::string& key) {
     if(store.find(key) != store.end()) {
         return store[key];
@@ -45,8 +47,14 @@ std::optional<std::string> MiniDB::get(const std::string& key) {
     return std::nullopt;
 }
 
+// Delete key
 bool MiniDB::del(const std::string& key) {
     bool existed = store.erase(key) > 0;
     if(existed) saveToFile();
     return existed;
+}
+
+// Get all key-value pairs
+std::unordered_map<std::string, std::string> MiniDB::getAll() {
+    return store;
 }

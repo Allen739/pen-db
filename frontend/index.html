@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini-DB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+        }
+        input {
+            margin: 0.5em;
+        }
+        button {
+            margin: 0.5em;
+        }
+        #result {
+            margin-top: 1em;
+            font-weight: bold;
+            white-space: pre-wrap; /* preserve line breaks */
+        }
+    </style>
+</head>
+<body>
+    <h1>Mini-DB Web Frontend</h1>
+
+    <div>
+        <input type="text" id="key" placeholder="Key">
+        <input type="text" id="value" placeholder="Value">
+        <button onclick="setValue()">SET</button>
+        <button onclick="getValue()">GET</button>
+        <button onclick="deleteValue()">DELETE</button>
+        <button onclick="viewAll()">VIEW ALL</button>
+    </div>
+
+    <p id="result"></p>
+
+    <script>
+        const apiUrl = "http://localhost:8080";
+
+        function setValue() {
+            const key = document.getElementById("key").value;
+            const value = document.getElementById("value").value;
+
+            fetch(`${apiUrl}/set`, {
+                method: "POST",
+                body: new URLSearchParams({key, value})
+            })
+            .then(res => res.text())
+            .then(text => document.getElementById("result").innerText = text);
+        }
+
+        function getValue() {
+            const key = document.getElementById("key").value;
+
+            fetch(`${apiUrl}/get?key=${key}`)
+            .then(res => res.text())
+            .then(text => document.getElementById("result").innerText = text);
+        }
+
+        function deleteValue() {
+            const key = document.getElementById("key").value;
+
+            fetch(`${apiUrl}/delete`, {
+                method: "POST",
+                body: new URLSearchParams({key})
+            })
+            .then(res => res.text())
+            .then(text => document.getElementById("result").innerText = text);
+        }
+
+        function viewAll() {
+            fetch(`${apiUrl}/all`)
+            .then(res => res.text())
+            .then(text => document.getElementById("result").innerText = text);
+        }
+    </script>
+</body>
+</html>

@@ -13,8 +13,8 @@ include_directories(include)
 
 # Add the exacutable
 add_executable(mini-db
-    main.cpp
     src/db.cpp
+    src/api.cpp
 )
 
 # Optional: compiler warnings (good practicve)
