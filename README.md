@@ -1,22 +1,19 @@
-
-````markdown
-# Pen-DB 🚀  
+ Pen-DB 🚀  
 
 A super-lightweight key-value database built from scratch in C++ with:  
 - **Persistent storage on disk**  
 - **REST API using cpp-httplib**  
 - **Single-file HTML frontend**  
 
----
 
-## Features ✨
+
+ Features ✨
 - ✅ Persistent key-value store (`data.txt`)
 - ✅ REST API endpoints: `/set`, `/get`, `/delete`, `/all`
 - ✅ CORS enabled – works with browser frontends
 - ✅ Minimal web frontend for managing data
 - ✅ Easily extensible for embeddings, vector search, etc.
 
----
 
 ## Quick Start 🛠️
 
